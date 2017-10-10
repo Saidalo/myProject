@@ -17,7 +17,7 @@
 <?php
 foreach($projects as $project) {
 ?>
-  <option><?=$project->name?></option>
+  <option value=<?=$project->id?>><?=$project->name?></option>
 <?php
 }
 ?>
@@ -36,3 +36,4 @@ $('.selectpicker').selectpicker({
   size: 4
 });
 </style>
+<script  src="./js/login/index.js"></script>

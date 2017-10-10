@@ -1,5 +1,6 @@
 <?php
-  class Project {
+class Project 
+{
     public $id;
     public $name;
     public $description;
@@ -15,25 +16,39 @@
       $list = [];
       $db = Db::getInstance();
       $req = $db->query('SELECT * FROM project');
-
-      // we create a list of Post objects from the database results
+	  
       foreach($req->fetchAll() as $post) {
         $list[] = new Project($post['id'], $post['name'], $post['description']);
       }
-
       return $list;
     }
 
-    public static function find($id) {
-      $db = Db::getInstance();
-      // we make sure $id is an integer
-      $id = intval($id);
-      $req = $db->prepare('SELECT * FROM project WHERE id = :id');
-      // the query was prepared, now we replace :id with our actual $id value
-      $req->execute(array('id' => $id));
-      $post = $req->fetch();
-
-      return new Project($post['id'], $post['name'], $post['description']);
-    }
-  }
+    public static function getTickets($ids) {
+		$db = Db::getInstance();
+		$a = "SELECT 
+				ticket.id as ticket_id, 
+				ticket.description as t_description, 
+				ticket.project as t_project, 
+				ticket.status, 
+				ticket.priority,  
+				ticket.assignee, 
+				ticket.created_date, 
+				ticket.updated_date, 
+				ticket.name as ticket_name, 
+				project.description as project_desc,
+				user.Username,
+				user.Name as user_name 
+			FROM ticket 
+				LEFT JOIN project on project.id=ticket.project 
+				LEFT JOIN user on user.id=ticket.assignee 
+			where ticket.project IN ('".join("','",$ids)."')";
+		$req = $db->prepare($a);
+		$req->execute();
+		$respond = [];
+		while($post = $req->fetch()) {
+			array_push($respond, $post);
+		}
+		return $respond;
+	}
+}
 ?>

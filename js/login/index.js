@@ -10,4 +10,18 @@ $('.submit-button').on('click', function(){
 		}
     }});
 	return false;
-})
+});
+
+$('select.selectpicker').on('change', function() {
+	var projectId = $(this).val();
+	$.ajax({
+		type: 'POST',
+		url: 'ajaxProjects',
+		data: { 
+			'projectId': projectId, 
+		},
+		success: function(msg){
+			$(".list-group-item").html(msg);
+		}
+	});
+});

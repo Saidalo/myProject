@@ -1,5 +1,5 @@
 <?php
-function call($controller, $action) {
+function call($controller, $action, $param = null) {
 	require_once('controllers/' . $controller . '_controller.php');
 	switch($controller) {
 		case 'pages':
@@ -20,23 +20,43 @@ function call($controller, $action) {
 		break;
 	  
     }
-	
-    $controller->{ $action }();
+    $controller->{ $action }($param);
   }
 
   // we're adding an entry for the new controller and its actions
   $controllers = array('pages' => ['home', 'error'],
                        'posts' => ['index', 'show'],
-                       'main' => ['show', 'error'],
+                       'main' => ['show', 'error', 'getProjectTickets'],
 					   'login' => ['show', 'index', 'ajaxSignIn']);
-
+  $post = [];
+  $get = [];
+ 
+  if(!$controller && !$action) {
+		$path = $_SERVER['REQUEST_URI'];
+		
+		if(strpos($path, 'ajaxProjects')) {
+			
+			$controller = 'main';
+			$path = $_SERVER['REQUEST_URI'];
+			$action = 'getProjectTickets';
+			array_push($post, $_POST['projectId']);
+			
+		}
+  }
+  
   if (array_key_exists($controller, $controllers)) {
     if (in_array($action, $controllers[$controller])) {
-      call($controller, $action);
+		
+	if(!empty($post) || !empty($get)) {
+			call($controller, $action, (empty($post) ? $get : $post));
+		} else {
+			call($controller, $action);
+		}
+		
     } else {
-      call('pages', 'error');
+		call('pages', 'error');
     }
   } else {
-    call('pages', 'error');
+		call('pages', 'error');
   }
 ?>
